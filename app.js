@@ -90,7 +90,7 @@ app.use(passport.session());
 passport.use(new MicrosoftStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET_VALUE,
-    callbackURL: "http://localhost:3000/auth/microsoft/callback",
+    callbackURL: "https://peerevals.onrender.com/auth/microsoft/callback",
     scope: ['user.read'],
     tenant: 'common'
   },
