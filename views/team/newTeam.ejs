@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeerEvalS</title>
+    <link rel = "stylesheet" href="/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">   
+</head>
+<body>
+    <%- include("../includes/navbar.ejs") %>
+    <div class="row mt-3">
+        <div class="col-8 offset-2">
+            <h3>Form Teams</h3>
+            <form method = "POST" action = "/teams/<%=course._id%>" class = "needs-validation" novalidate>
+                <div class="mb-3">
+                    <label for = "teamIndex" class = "form-label">Team No:</label>
+                    <input name = "teamIndex" type = "number" min = "1" class="form-control" required>
+                    <div class="invalid-feedback">Please enter index</div>
+                </div>
+                <div id = "members">
+                    <div class="mb-3">
+                        <label class = "form-label">Add Member</label>
+                        <select class="form-select member-select" aria-label="Default select example" name = "members">
+                            <option selected>Add a Member</option>
+                            <% for(let student of course.students) { %>
+                                <option value="<%= student.name %>"><%= student.name %></option>
+                            <% } %>
+                        </select>
+                    </div>
+                </div>
+                <button class = "btn btn-dark mt-3" type="button" id="addMemberBtn">Add More Members</button>
+                &nbsp; &nbsp; &nbsp;
+                <button class = "btn btn-primary mt-3" type="button" id="formTeamBtn">Form Team</button>
+                &nbsp; &nbsp; &nbsp;
+                <div class="team-container"></div>
+                <button class = "btn btn-success mt-3" type="submit">Confirm Teams</button>
+            </form>
+        </div>
+    </div>
+    <%- include("../includes/footer.ejs") %>
+    <script>
+        const students = <%- JSON.stringify(course.students.map(student => student.name)) %>;
+        console.log("Students array:", students); 
+        document.addEventListener('DOMContentLoaded', function () {
+            // Ensure buttons are accessible
+            const addMemberButton = document.getElementById('addMemberBtn');
+            const formTeamButton = document.getElementById('formTeamBtn');
+
+            if (addMemberButton && formTeamButton) {
+                // Add event listeners
+                addMemberButton.addEventListener('click', function () {
+                    console.log("Add Member Button Clicked");
+                    addMembers();
+                });
+
+                formTeamButton.addEventListener('click', function () {
+                    console.log("Form Team Button Clicked");
+                    formTeam();
+                });
+            } else {
+                console.error("Buttons not found");
+            }
+
+            let selectedTeams = new Set();  // Store used team indexes
+            let assignedStudents = new Set();
+
+            // Define addMembers function
+            window.addMembers = function () {
+                console.log("addMembers function called");
+                const memberContainer = document.getElementById("members");
+                const newMember = document.createElement("div");
+                newMember.innerHTML = `
+                    <div class="mb-3">
+                        <label class="form-label">Add Member</label>
+                        <select class="form-select member-select" aria-label="Default select example" name="members">
+                            <option selected>Add a Member</option>
+                            ${getAvailableStudents()}
+                        </select>
+                    </div>
+                `;
+                memberContainer.appendChild(newMember);
+            };
+
+            // Define formTeam function
+            window.formTeam = function () {
+                console.log("formTeam function called");
+                const teamIndexInput = document.querySelector("input[name='teamIndex']");
+                const teamIndex = teamIndexInput.value;
+                const memberSelects = document.querySelectorAll(".member-select");
+                const selectedMembers = Array.from(memberSelects).map(select => select.value).filter(value => value !== "Add a Member");
+
+                if (!teamIndex) {
+                    alert("Please enter a team number.");
+                    return;
+                }
+                if (selectedMembers.length < 3) {
+                    alert("Please add at least three members.");
+                    return;
+                }
+                if (selectedTeams.has(teamIndex)) {
+                    alert("This team number has already been used. Please choose another.");
+                    return;
+                }
+
+                // Add team index to the set
+                selectedTeams.add(teamIndex);
+                // Add members to the assigned set
+                selectedMembers.forEach(member => assignedStudents.add(member));
+
+                const teamContainer = document.querySelector(".team-container");
+                const newTeamCard = document.createElement("div");
+                newTeamCard.classList.add("team-card", "card", "m-3");
+                newTeamCard.style.width = "18rem";
+                newTeamCard.innerHTML = `
+                    <div class="card-header">
+                        Team ${teamIndex}
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        ${selectedMembers.map(member => `<li class="list-group-item">${member}</li>`).join('')}
+                    </ul>
+                `;
+                teamContainer.appendChild(newTeamCard);
+
+                // Add hidden inputs for team data
+                const form = document.querySelector("form");
+                selectedMembers.forEach((member, index) => {
+                const inputTeamIndex = document.createElement("input");
+                inputTeamIndex.type = "hidden";
+                inputTeamIndex.name = `teams[${teamIndex}][members][${index}]`;  // Create dynamic name for each member
+                inputTeamIndex.value = member;
+                form.appendChild(inputTeamIndex);
+                });
+
+                // Hidden input for the team index
+                const inputTeamIndex = document.createElement("input");
+                inputTeamIndex.type = "hidden";
+                inputTeamIndex.name = `teams[${teamIndex}][index]`;
+                inputTeamIndex.value = teamIndex;
+                form.appendChild(inputTeamIndex);
+
+                // Update the dropdowns
+                updateAvailableStudents();
+
+                // Disable used team index
+                 teamIndexInput.value = "";
+            };
+
+            // Function to get available students
+            function getAvailableStudents() {
+                return students
+                    .filter(student => !assignedStudents.has(student))
+                    .map(student => `<option value="${student}">${student}</option>`)
+                    .join('');
+            }
+
+            // Function to update the available students dropdowns
+            function updateAvailableStudents() {
+                document.querySelectorAll(".member-select").forEach(select => {
+                    select.innerHTML = `<option selected>Add a Member</option>` + getAvailableStudents();
+                });
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

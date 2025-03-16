@@ -1,0 +1,33 @@
+<% layout("/layouts/boilerplate") %>
+
+<h3>Edit the Rubric of <%=rubric.courseId.courseCode%> <%=rubric.courseId.description%></h3>
+<br>
+<form method = "POST" action = "/rubrics/<%=rubric._id%>?_method=PUT">
+    <div class="rubrics-table">
+        <table class="table table-bordered border-dark">
+            <tr class = "table-primary">
+                <th>No</th>
+                <th>Criteria</th>
+                <th>Weight</th>
+                <th>Descriptions</th>
+            </tr>
+            <% let rubricCounter = 1; %>
+                <% rubric.criteria.forEach((criterion) => { %>
+                    <tr>
+                        <td><%= rubricCounter ++ %></td>
+                        <td><input type = "text" name = "criteria[]" value = "<%= criterion.name %>"></td>
+                        <td><input type = "number" name = "weight[]" value = "<%= criterion.weight %>"></td>
+                        <td>
+                            <ul>
+                                <% criterion.performances.forEach((performance) => { %>
+                                    <li>Score <%= performance.level %>
+                                        : <input type = "text" name = "description[]" value = "<%= performance.description %>" size = 100></li>
+                                <% }) %>
+                            </ul>
+                        </td>
+                    </tr>
+                <% }) %>
+        </table>
+    </div>
+    <button class = "btn btn-success m-3" type="submit">Confirm Rubric</button>
+</form>

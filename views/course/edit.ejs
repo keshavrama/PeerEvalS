@@ -1,0 +1,68 @@
+<% layout("/layouts/boilerplate") %>
+
+<body>
+    <div class="row mt-3">
+        <div class="col-8 offset-2">
+            <h3>Edit the Details of this Course: <%=viewCourse.courseId%></h3>
+            <form method = "POST" action = "/courses/<%=viewCourse._id%>?_method=PUT" class="needs-validation" novalidate>
+
+                <div class="course-info">
+                    <div class="mb-3">
+                        <label for = "description" class = "form-label">Description:</label>
+                        <input name = "description" value = "<%=viewCourse.description%>" type = "text" class="form-control" required>
+                        <div class="invalid-feedback">Please enter Course Name</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for = "courseCode" class = "form-label">Course Code:</label>
+                        <input name = "courseCode" value = "<%=viewCourse.courseCode%>" type = "text" class="form-control" required>
+                        <div class="invalid-feedback">Please enter Course Code</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for = "courseId" class = "form-label">Course Id:</label>
+                        <input name = "courseId" value = "<%=viewCourse.courseId%>" type = "text" class="form-control" required>
+                        <div class="invalid-feedback">Please enter Course ID</div>
+                    </div>
+                    <!-- <input name = "description" value = "<%=viewCourse.description%>" type = "text">
+                    <br><br>
+                    <input name = "courseCode" value = "<%=viewCourse.courseCode%>" type = "text">
+                    <br><br>
+                    <input name = "courseId" value = "<%=viewCourse.courseId%>" type = "text">
+                    <br><br> -->
+                </div>
+                <div class="team-mem">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Role</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% 
+                            let allMembers = [...viewCourse.instructors, ...viewCourse.students];
+                            allMembers.forEach((member, index) => { 
+                            %>
+                            <tr>
+                                <td><%= index + 1 %></td>
+                                <td>
+                                    <input type="text" name="members[<%= index %>][role]" value="<%= member.role %>" required>
+                                </td>
+                                <td>
+                                    <input type="text" name="members[<%= index %>][name]" value="<%= member.name %>" required>
+                                </td>
+                                <td>
+                                    <input type="email" name="members[<%= index %>][email]" value="<%= member.email %>" required>
+                                </td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <button class = "btn mb-3 btn-success">Submit</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/home"><i class="fa-solid fa-user-graduate"></i></i></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-link" href="/home">Home</a>
+          <a class="nav-link" href="/courses">All Courses</a>
+          <!-- <a class="nav-link" href="/courses/new">Add a New Course</a> -->
+        </div>
+        <div class="navbar-nav ms-auto"> 
+          <!-- margin start - auto -->
+          <% if(!currUser){ %>
+            <a class="nav-link" href="/login"><b>Sign in</b></a>
+          <% } %>
+          <% if (currUser) { %>
+            <span class="navbar-name navbar-brand mb-0"><%=currUser.name%></span>
+            <a class="nav-link" href="/logout"><b>Sign out</b></a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </nav>

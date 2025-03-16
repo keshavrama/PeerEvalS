@@ -1,0 +1,147 @@
+body{
+    font-family: "Plus Jakarta Sans", serif !important;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.container{
+    flex: 1; /* A value of 1 means the element will grow to take up all available space*/
+}
+
+/* Navbar */
+.navbar{
+    height: 5rem;
+    background-color: white;
+}
+
+.fa-user-graduate{
+    color: #7f1d23;
+    font-size: 2rem;
+}
+
+.nav-link{
+    color: #222222 !important; 
+}
+
+.navbar-name{
+    color:#7f1d23 !important;
+    font-weight: 500;
+    font-family: serif;
+}
+
+/* Footer */
+.f-info-links a{
+    text-decoration: none;
+    color: #222222;
+}
+
+.f-info-links a:hover{
+    text-decoration: underline;
+}
+
+.f-info-socials, .f-info-brand, .f-info-links{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.f-info-socials i{
+    font-size: 1.2rem;
+    margin-right: 1rem;
+}
+
+.f-info{
+    background-color: #ebebeb;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: space-evenly;
+    text-align: center;
+    height: 8rem;
+}
+
+.viewCourse-btns{
+    display: flex;
+    gap: 5px;
+}
+.eval{
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
+    align-items: center;
+}
+
+.team-container{
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.team-card {
+    flex: 1 1 18rem;
+}
+
+.disabled-link {
+    pointer-events: none; /* Prevents clicks */
+    opacity: 0.5; /* Makes it look disabled */
+    cursor: not-allowed; /* Shows disabled cursor */
+}
+
+/*login*/
+.login{
+    height: 75vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.bsk-container {
+    border: 0.1px solid #222222;
+    border-radius: 6px;
+    width: 399px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+.login-card{
+    padding: 0!important;
+}
+.x-icon {
+    height: 1em;
+    width: 1em;
+    position: relative;
+    font-size: 30px;
+    margin-right: 10px;
+    padding-top: 5px;
+}
+
+.evaluationTable{
+    text-align: center;
+}
+
+.results-card{
+    color: black;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.card-text p{
+    font-weight: 400 !important;
+}
+
+.card-img-overlay{
+    opacity: 0; /* overlay invisible */
+}
+
+.card-img-overlay:hover{
+    opacity: 0.2;
+    background-color: white; /* overlay slightly visible */
+}
+
+.home{
+    text-align: center;
+}

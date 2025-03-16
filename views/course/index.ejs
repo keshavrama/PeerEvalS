@@ -1,0 +1,33 @@
+<% layout("/layouts/boilerplate") %>
+
+<body>
+    <table class="table table-striped mt-3">
+        <tr>
+            <th>No</th>
+            <th>Name and Description</th>
+            <th>Course ID</th>
+        </tr>
+        <% for(course of allCourses){ %>
+            <tr>
+                <td><%=no++%></td>
+                <td><%=course.description%></td>
+                <td><%=course.courseId%></td>
+                <td><a href = "/courses/<%=course._id%>" class = "btn btn-sm btn-dark">View</a></td>
+                <% if(currUser.email.endsWith("@ntu.edu.sg") || currUser.email === "nagammai001@e.ntu.edu.sg"){ %>
+                <td>
+                    <form method = "POST" action = "/courses/<%=course._id%>?_method=DELETE">
+                        <button class = "btn btn-sm btn-danger" >Delete</button>
+                    </form>
+                </td>
+                <% } %>
+            </tr>
+        <% } %>
+    </table>
+    <% if(currUser.email.endsWith("@ntu.edu.sg") || currUser.email === "nagammai001@e.ntu.edu.sg"){ %>
+        <form method = "GET" action = "/courses/new">
+            <button class = "btn btn-sm btn-primary">Create a Course</button>
+        </form>
+    <% } %>
+</body>
+</html>
+

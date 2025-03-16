@@ -1,0 +1,40 @@
+<% layout("/layouts/boilerplate") %>
+
+<body>
+    <h3>Edit Team <%=team.teamIndex%> of the Course: <%=team.course.courseCode%> <%=team.course.description%></h3>
+    <div class="col-8 offset-4">
+        <form method = "POST" action = "/<%=team.course._id%>/teams/<%=team._id%>?_method=PUT" >
+            <div class="card m-3" style="width: 18rem;">
+                <div class="card-header">
+                     Team <%=team.teamIndex%>
+                 </div>
+                 <ul class="list-group list-group-flush" id = "editlist">
+                     <% for(let member of team.members){ %>
+                         <li class = "list-group-item"><input type = "text" name = "members[]" value = "<%=member.name%>" oninput="removeEmptyInputs()"></li>
+                     <% } %>
+                 </ul>
+                 <button class = "btn btn-dark mt-3" type="button" onClick = addMember()>Add Member</button>
+            </div>
+            <br>
+            <button class = "btn btn-success m-3" type="submit">Confirm Teams</button>
+        </form>
+    </div>
+
+    <script>
+        function removeEmptyInputs() {
+            document.querySelectorAll('input[name="members[]"]').forEach(input => {
+            if (input.value.trim() === "") {
+                input.parentElement.remove(); // Remove the input if empty
+            }
+        });
+        }
+        function addMember(){
+            const memberContainer = document.getElementById("editlist");
+                const newMember = document.createElement("div");
+                newMember.innerHTML = `
+                    <li class = "list-group-item"><input type = "text" name = "members[]" placeholder="New Member" oninput="removeEmptyInputs()"></li>
+                `;
+                memberContainer.appendChild(newMember);
+        }
+    </script>
+</body>

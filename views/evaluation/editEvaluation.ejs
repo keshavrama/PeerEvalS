@@ -1,0 +1,101 @@
+<% layout("/layouts/boilerplate") %>
+<div class="row mt-3">
+   <div class="col-12">
+       <form method="POST" action="/evaluations/update?_method=PUT">
+           <div class="table-responsive evaluationTable">
+               <table class="table align-middle table-bordered border-dark">
+                   <thead class="align-middle">
+                       <tr class="table-primary">
+                           <th scope="col" rowspan="3">No</th>
+                           <th scope="col" rowspan="3">Member</th>
+                           <th scope="col" colspan="<%= rubric.criteria[0].performances.length * rubric.criteria.length %>">
+                               Teamwork and Interpersonal Skills Criteria (Scale 1 - <%= rubric.criteria[0].performances.length %>)
+                           </th>
+                           <th scope="col" rowspan="2" colspan="3">Qualitative Feedback</th>
+                           <th scope="col" rowspan="3">Total</th>
+                       </tr>
+                       <tr class="table-secondary">
+                           <% rubric.criteria.forEach(criteria => { %>
+                               <th scope="col" colspan="<%= criteria.performances.length %>">
+                                   <%= criteria.name %>
+                               </th>
+                           <% }); %>
+                       </tr>
+                       <tr class="table-secondary">
+                           <% rubric.criteria.forEach(criteria => { %>
+                               <th scope="col" colspan="<%= criteria.performances.length %>">
+                                   Weightage: <%= criteria.weight %>
+                               </th>
+                           <% }); %>
+                           <th scope="col">Strength</th>
+                           <th scope="col">Areas to Improve</th>
+                           <th scope="col">Other</th>
+                       </tr>
+                   </thead>
+                   <tbody>
+                       <% userTeam.members.forEach((member, index) => { %>
+                        <% console.log("Evaluations Data:", evaluations); %>
+                        <% let memberEval = evaluations.find(e => e.evaluateeId.equals(member._id)); 
+                           console.log("Matching Evaluation for", member.name, ":", memberEval);%>
+                           <tr>
+                               <th scope="row"><%= index + 1 %></th>
+                               <td><%= member.name %></td>
+
+                               <% rubric.criteria.forEach((criteria, i) => { %>
+                                   <% criteria.performances.forEach((_, j) => { %>
+                                       <% 
+                                           let radioName = `scores[${member._id}][${i}]`;
+                                           let radioId = `score-${member._id}-${i}-${j}`;
+                                           let existingScore = memberEval ? memberEval.scores.find(s => s.criteria.trim().toLowerCase() === criteria.name.trim().toLowerCase())?.score : null;
+                                            let isChecked = existingScore === (j + 1);
+                                            console.log("Member:", member.name, "Criteria:", criteria.name, "Existing Score:", existingScore); 
+
+                                       %>
+                                       <td>
+                                        <input type="radio" class="btn-check score-radio" name="<%= radioName %>" 
+                                        id="<%= radioId %>" value="<%= j + 1 %>" data-member="<%= member._id %>"
+                                        data-criteria="<%= i %>"
+                                        data-weight="<%= criteria.weight %>"
+                                        data-max-score="<%= rubric.criteria[i].performances.length %>" 
+                                        autocomplete="off" <%= isChecked ? "checked" : "" %>>
+                                        <label class="btn btn-outline-primary" for="<%= radioId %>"><%= j + 1 %></label>
+                                       </td>
+                                   <% }); %>
+                               <% }); %>
+
+                               <td><textarea class="form-control" style="width: 200px" name="strength[<%= member._id %>]"><%= memberEval?.feedback[0]?.strength || "" %></textarea></td>
+                               <td><textarea class="form-control" style="width: 200px" name="improve[<%= member._id %>]"><%= memberEval?.feedback[0]?.improve || "" %></textarea></td>
+                               <td><textarea class="form-control" style="width: 200px" name="other[<%= member._id %>]"><%= memberEval?.feedback[0]?.other || "" %></textarea></td>
+                               <td class="total-score" id="total-<%= member._id %>"><%= memberEval ? memberEval.total + "%" : "0%" %></td>
+                               <input type="hidden" name="evalId[<%= member._id %>]" value="<%= memberEval ? memberEval._id : '' %>">
+                           </tr>
+                       <% }); %>
+                   </tbody>
+               </table>
+           </div>
+           <button class="mt-3 btn btn-success" type="submit">Update Evaluation</button>
+       </form>
+   </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.body.addEventListener("change", function (event) {
+        if (event.target.classList.contains("score-radio")) {
+            const memberId = event.target.getAttribute("data-member");
+            let total = 0;
+
+            document.querySelectorAll(`.score-radio[data-member='${memberId}']:checked`).forEach(selected => {
+                const score = parseFloat(selected.value);
+                const weightage = parseFloat(selected.getAttribute("data-weight"));
+                const maxScore = parseFloat(selected.getAttribute("data-max-score"));
+
+                let percentage = (score / maxScore) * weightage;
+                total += percentage;
+            });
+
+            document.getElementById(`total-${memberId}`).innerText = total.toFixed(2) + "%";
+        }
+    });
+});
+</script>

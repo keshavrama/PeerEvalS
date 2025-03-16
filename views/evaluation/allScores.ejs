@@ -1,0 +1,57 @@
+<% layout("/layouts/boilerplate") %>
+<div class="mt-3 d-flex justify-content-end">
+    <button class="btn btn-sm btn-dark" onclick="exportTableToExcel()">Export (.xlsx)</button>
+</div>
+<div class="evaluationTable">
+    <table id = "allScores-table" class=" mt-1 table align-middle table-bordered border-dark">
+        <thead class="align-middle">
+            <tr class="table-secondary">
+                <th scope="col">No</th>
+                <th scope="col">Student</th>
+                <th scope="col">Average Evaluation Score &nbsp;&nbsp;&nbsp;[Weight:100]</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% course.students.forEach((student, index) => { %>
+                <% let data = studentScores[student._id]; %>
+                <% let avgScore = data.count > 0 ? (data.totalScore / data.count).toFixed(2) : null; %>
+                
+                <% 
+                    let colorClass = "";
+                    if (avgScore !== null) {
+                        if (avgScore >= 90) colorClass = "table-success"; // Green
+                        else if (avgScore >= 70) colorClass = "table-primary"; // Orange
+                        else if (avgScore >= 50) colorClass = "table-warning"; // Blue
+                        else colorClass = "table-danger"; // Red
+                    }
+                %>
+                <tr>
+                    <th scope="row"><%= index + 1 %></th>
+                    <td><a href = "/<%=rubric._id%>/<%=student._id%>/viewDetailByEvaluatee"><%= student.name %></a></td>
+                    <td class="<%= colorClass %>">
+                        <% if (avgScore !== null) { %>
+                            <%= avgScore %>%
+                        <% } else { %>
+                            No evaluations yet
+                        <% } %>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+    function exportTableToExcel() {
+        var table = document.getElementById("allScores-table");
+        
+        var wb = XLSX.utils.book_new();
+        
+        var ws = XLSX.utils.table_to_sheet(table);
+        
+        XLSX.utils.book_append_sheet(wb, ws, "Peer Evaluation Scores");
+        
+        XLSX.writeFile(wb, "peer_evaluation_scores.xlsx");
+    }
+</script>

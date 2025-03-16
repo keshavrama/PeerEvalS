@@ -1,0 +1,124 @@
+<% layout("/layouts/boilerplate") %>
+  <body>
+    <h3>Create Rubric for <%= course.courseCode %> <%= course.description %></h3>
+    <div class="row mt-3">
+      <div class="col-8 offset-2">
+        <form action="/rubrics/<%= course._id %>" method="POST" class="needs-validation" novalidate>
+          <div class="mb-3">
+            <label for="scale" class="form-label">Scale:</label>
+            <select name="scale" id="scale" class="form-select" aria-label="Default select example" onchange="updateScale()">
+              <option selected>Add the scale</option>
+              <option value="5">5</option>
+              <option value="10">10</option>
+            </select>
+          </div>
+  
+          <div id="criteria-container">
+            <div class="criteria-group mb-3">
+              <label class="form-label">Criteria:</label>
+              <input type="text" name="criteria[]" placeholder="Enter criteria" class="form-control criteria-input" required>
+              <label class = "form label">Weight:</label>
+              <input type = "number" min = "0" max = "100"  name = "weight[]"  placeholder="Enter weightage of this criteria" class="form-control weight-input" required>
+              <div class="descriptions">
+                <label class="form-label">Descriptions:</label>
+                <div id="descriptions-0">
+                  <!-- Descriptions will be inserted dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <button class="btn btn-dark mt-3" type="button" onclick="addCriteria()">Add Criteria</button>
+          <br><br>
+  
+          <h4 class="mt-4">Rubric Table</h4>
+          <table class="table table-bordered border-dark table-hover" id="rubric-table">
+            <thead>
+              <tr id="rubric-header" class = "table-primary">
+                <th>Criteria</th>
+                <th>Weight</th>
+                <th>5</th>
+                <th>4</th>
+                <th>3</th>
+                <th>2</th>
+                <th>1</th>
+              </tr>
+            </thead>
+            <tbody id="rubric-body">
+              <!-- Rubric rows will be dynamically added here -->
+            </tbody>
+          </table>
+  
+          <button class="btn btn-success mt-3" type="submit">Submit Rubric</button>
+        </form>
+      </div>
+    </div>
+  
+    <script>
+      let criteriaCount = 0;
+
+      function updateScale() {
+      const scale = parseInt(document.getElementById("scale").value);
+
+      // Update header dynamically
+      const headerRow = document.getElementById("rubric-header");
+      headerRow.innerHTML = "<th>Criteria</th><th>Weight</th>";
+      for (let i = scale; i >= 1; i--) {
+        headerRow.innerHTML += `<th>${i}</th>`;
+      }
+  
+        document.querySelectorAll(".descriptions div").forEach(container => {
+          container.innerHTML = "";
+          for (let i = scale; i >= 1; i--) {
+            container.innerHTML += `<input type="text" name="descriptions[]" placeholder="Enter description for ${i}" class="form-control" required>`;
+          }
+        });
+        updateRubricTable();
+      }
+  
+      function addCriteria() {
+        criteriaCount++;
+        const scale = parseInt(document.getElementById("scale").value);
+        const criteriaContainer = document.getElementById("criteria-container");
+  
+        const newCriteria = document.createElement("div");
+        newCriteria.classList.add("criteria-group", "mb-3");
+        newCriteria.innerHTML = `
+          <label class="form-label">Criteria:</label>
+          <input type="text" name="criteria[]" placeholder="Enter criteria" class="form-control criteria-input" required>
+          <label class = "form label">Weight:</label>
+          <input type = "number" min = "0" max = "100" name = "weight[]" placeholder="Enter weightage of this criteria" class="form-control weight-input" required>
+          <div class="descriptions">
+            <label class="form-label">Descriptions:</label>
+            <div id="descriptions-${criteriaCount}">
+              ${Array.from({ length: scale }, (_, i) => `<input type="text" name="descriptions[]" placeholder="Enter description for ${scale - i}" class="form-control" required>`).join("")}
+            </div>
+          </div>
+        `;
+        criteriaContainer.appendChild(newCriteria);
+        updateRubricTable();
+      }
+  
+      function updateRubricTable() {
+        const rubricBody = document.getElementById("rubric-body");
+        rubricBody.innerHTML = "";
+  
+        document.querySelectorAll(".criteria-group").forEach((criteriaGroup, index) => { 
+        const criteriaInput = criteriaGroup.querySelector(".criteria-input").value; 
+        const weightInput = criteriaGroup.querySelector(".weight-input").value;
+        const descriptionInputs = Array.from(criteriaGroup.querySelectorAll(".descriptions input")).map(input => input.value);
+        if (criteriaInput.trim() !== "" && descriptionInputs.every(desc => desc.trim() !== "")) {
+          let row = `<tr><td>${criteriaInput}</td><td>${weightInput}</td>`;
+          descriptionInputs.forEach(desc => {
+            row += `<td>${desc}</td>`;
+          });
+          row += `</tr>`;
+          rubricBody.innerHTML += row;
+        }
+  });
+}
+
+document.getElementById("criteria-container").addEventListener("input", updateRubricTable);
+</script> 
+</body>
+</html>

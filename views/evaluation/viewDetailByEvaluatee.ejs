@@ -1,0 +1,71 @@
+<% layout("/layouts/boilerplate") %>
+<div class="mt-3">
+    <h3>View Detail by Evaluatee</h3>
+    <h5>Evaluatee: <%= user.name %></h5>
+    <div class="d-flex justify-content-end">
+        <button class="btn btn-sm btn-dark" onclick="exportTableToExcel()">Export (.xlsx)</button>
+    </div>
+<div class="mt-1 table-responsive evaluationTable">
+    <table id = "viewDetailEvaln-table" class="table align-middle table-bordered border-dark">
+        <thead class="align-middle">
+            <tr class="table-primary">
+                <th scope="col" rowspan="3">No</th>
+                <th scope="col" rowspan="3">Member</th>
+                <th scope="col" colspan="<%= rubric.criteria.length %>">
+                    Teamwork and Interpersonal Skills Criteria_Scale 1 - <%= rubric.criteria[0].performances.length %>
+                </th>
+                <th scope="col" rowspan="2" colspan="3">Qualitative Feedback</th>
+                <th scope="col" rowspan="3">Total</th>
+            </tr>
+            <tr class="table-secondary">
+                <% rubric.criteria.forEach(criteria => { %>
+                    <th scope="col"><%= criteria.name %></th>
+                <% }); %>
+            </tr>
+            <tr class="table-secondary">
+                <% rubric.criteria.forEach(criteria => { %>
+                    <th scope="col" >Weightage: <%= criteria.weight %></th>
+                <% }); %>
+                <th scope="col">Strength</th>
+                <th scope="col">Areas to Improve</th>
+                <th scope="col">Other</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% evals.forEach((eval, index) => { %>
+                <tr>
+                    <th scope="row"><%= index + 1 %></th>
+                    <td><%= eval.evaluatorId.name %></td>
+                    <input type="hidden" name="evaluateeId[]" value="<%= user._id %>">
+                    
+                    <% eval.scores.forEach(score => { %>
+                        <td><%= score.score %></td>
+                    <% }); %>
+
+                    <td><%= eval.feedback[0]?.strength || "N/A" %></td>
+                    <td><%= eval.feedback[0]?.improve || "N/A" %></td>
+                    <td><%= eval.feedback[0]?.other || "N/A" %></td>
+                    
+                    <td class="total-score"><%= eval.total %></td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+    function exportTableToExcel() {
+        var table = document.getElementById("viewDetailEvaln-table");
+        
+        var wb = XLSX.utils.book_new();
+        
+        var ws = XLSX.utils.table_to_sheet(table);
+        
+        XLSX.utils.book_append_sheet(wb, ws, "Peer Evaluation in Detail");
+        
+        XLSX.writeFile(wb, "peer_evaluation_details.xlsx");
+    }
+</script>
