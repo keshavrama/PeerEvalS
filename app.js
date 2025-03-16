@@ -14,6 +14,8 @@ const ejsMate = require("ejs-mate");
 // const MONGO_URL = "mongodb://127.0.0.1:27017/peerevals"
 const dbUrl = process.env.ATLASDB_URL;
 
+const session = require("express-session");
+
 const MongoStore = require('connect-mongo');
 const store = MongoStore.create({
     mongoUrl: dbUrl,
@@ -59,8 +61,6 @@ app.use(cookieParser());
 
 // const jwt = require('jsonwebtoken');
 // const bcrypt = require('bcryptjs');
-
-const session = require("express-session");
 
 const flash = require("connect-flash");
 app.use(flash());
@@ -193,6 +193,14 @@ app.get('/auth/microsoft/callback', saveRedirectUrl,
     res.redirect(redirectUrl);
   }
 );
+
+app.get('/', (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.redirect('/login');
+    }
+    res.redirect('/courses');
+});
+
 
 //COURSES
 //Count of courses:
