@@ -4,8 +4,7 @@ const validator = require('validator');
 const userSchema = new mongoose.Schema({
     microsoftId: {  // Store Microsoft's UUID separately
         type: String,
-        unique: true,
-        sparse: true,
+        // unique: true,
     },
     email: {
         type: String,
