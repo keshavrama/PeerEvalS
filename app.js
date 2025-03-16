@@ -255,75 +255,59 @@ app.get("/courses/:id", isSignedIn, wrapAsync(async(req, res, next) => {
 //2b) Create Route - add the new course created to db
 app.post("/courses", isSignedIn, wrapAsync(async (req, res, next) => {
     // try {
-        const data = req.body; // Input data
-        console.log("Received data:", data);
+        const { description, courseCode, courseId, instructors, students } = req.body;
 
-        // Initialize arrays for instructors and students
-        const instructors = [];
-        const students = [];
+    if (!instructors || instructors.length === 0) {
+      throw new ExpressError(400, "At least one instructor is required.");
+    }
+    if (!students || students.length === 0) {
+      throw new ExpressError(400, "At least one student is required.");
+    }
 
-        // Process instructors
-        for (let instructor of data.instructors) {
-            // for (let i = 0; i < instructor.email.length; i++) {
-                const existingInstructor = await User.findOne({ email: instructor.email, role: 'instructor'});
-                if (!existingInstructor) {
-                    // Create a new instructor if they don't exist
-                    const newInstructor = new User({
-                        name: instructor.name,
-                        email: instructor.email,
-                        role: 'instructor',
-                        microsoftId: null,
-                    });
-                    await newInstructor.save();
-                    instructors.push(newInstructor._id); // Save the user's ID
-                } else {
-                    instructors.push(existingInstructor._id); // Use the existing instructor
-                }
-            // }
+    const instructorIds = await Promise.all(
+      instructors.map(async (instructor) => {
+        let existingInstructor = await User.findOne({ email: instructor.email, role: "instructor" });
+        if (!existingInstructor) {
+          existingInstructor = new User({
+            name: instructor.name,
+            email: instructor.email,
+            role: "instructor",
+            microsoftId: null,
+          });
+          await existingInstructor.save();
         }
+        return existingInstructor._id;
+      })
+    );
 
-        // Process students
-        for (let student of data.students) {
-            // for (let i = 0; i < student.email.length; i++) {
-                const existingStudent = await User.findOne({ email: student.email, role: 'student' });
-                if (!existingStudent) {
-                    // Create a new student if they don't exist
-                    const newStudent = new User({
-                        name: student.name,
-                        email: student.email,
-                        role: 'student',
-                        microsoftId: null,
-                    });
-                    await newStudent.save();
-                    students.push(newStudent._id); // Save the user's ID
-                } else {
-                    students.push(existingStudent._id); // Use the existing student
-                }
-            // }
+    const studentIds = await Promise.all(
+      students.map(async (student) => {
+        let existingStudent = await User.findOne({ email: student.email, role: "student" });
+        if (!existingStudent) {
+          existingStudent = new User({
+            name: student.name,
+            email: student.email,
+            role: "student",
+            microsoftId: null,
+          });
+          await existingStudent.save();
         }
+        return existingStudent._id;
+      })
+    );
 
-        // Validate members
-        if (!instructors || instructors.length === 0) {
-            throw new ExpressError(400, "At least one instructor is required.");
-            // return res.status(400).send("At least one instructor is required.");
-        }
+    // Create and save the new course
+    const newCourse = new Course({
+      description,
+      courseCode,
+      courseId,
+      instructors: instructorIds,
+      students: studentIds,
+    });
+    await newCourse.save();
 
-        if (!students || students.length === 0) {
-            throw new ExpressError(400, "At least one student is required.");
-            // return res.status(400).send("At least one student is required.");
-        }
-
-        // Create a new course object
-        const newCourse = new Course({ 
-            description: data.description,
-            courseCode: data.courseCode,
-            courseId: data.courseId,
-            instructors,
-            students,
-        });
-        await newCourse.save();
-        req.flash("success", "New Course created successfully");
-        res.redirect("/courses");
+    req.flash("success", "New Course created successfully");
+    res.redirect("/courses");
     // } catch (error) {
     //     console.error("Error saving course:", error);
     //     res.status(500).send("An error occurred while saving the course.");
