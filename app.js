@@ -205,13 +205,27 @@ app.get('/', (req, res) => {
 //COURSES
 //Count of courses:
 app.get("/home", isSignedIn, wrapAsync(async(req, res, next) => {
-    const countCourses = await Course.countDocuments();
+    const countCourses = await Course.countDocuments(
+        { 
+            $or: [
+                { instructors: req.user._id }, 
+                { students: req.user._id }
+            ] 
+        }
+    );
     res.render("./course/home.ejs", {countCourses});
 }));
 
 //1a) Index Route - all courses
 app.get("/courses", isSignedIn, wrapAsync(async(req, res, next) => {
-    const allCourses = await Course.find({}); 
+    const allCourses = await Course.find(
+        { 
+            $or: [
+                { instructors: req.user._id }, 
+                { students: req.user._id }
+            ] 
+        }
+    ); 
     res.render("./course/index.ejs", {allCourses, no:1});
 }));
 
@@ -255,44 +269,34 @@ app.get("/courses/:id", isSignedIn, wrapAsync(async(req, res, next) => {
 //2b) Create Route - add the new course created to db
 app.post("/courses", isSignedIn, wrapAsync(async (req, res, next) => {
     // try {
-        const { description, courseCode, courseId, instructors, students } = req.body;
+        const { description, courseCode, courseId } = req.body;
+    const instructors = Object.values(req.body.instructors || {}); // Convert to array
+    const students = Object.values(req.body.students || {}); // Convert to array
 
-    if (!instructors || instructors.length === 0) {
-      throw new ExpressError(400, "At least one instructor is required.");
-    }
-    if (!students || students.length === 0) {
-      throw new ExpressError(400, "At least one student is required.");
-    }
+    if (!instructors.length) throw new ExpressError(400, "At least one instructor is required.");
+    if (!students.length) throw new ExpressError(400, "At least one student is required.");
 
+    // Process instructors
     const instructorIds = await Promise.all(
-      instructors.map(async (instructor) => {
-        let existingInstructor = await User.findOne({ email: instructor.email, role: "instructor" });
-        if (!existingInstructor) {
-          existingInstructor = new User({
-            name: instructor.name,
-            email: instructor.email,
-            role: "instructor",
-            microsoftId: null,
-          });
-          await existingInstructor.save();
+      instructors.map(async ({ name, email }) => {
+        let instructor = await User.findOne({  email: {$regex: new RegExp(`${email}$`, `i`)} , role: "instructor" });
+        if (!instructor) {
+          instructor = new User({ name, email, role: "instructor", microsoftId: null });
+          await instructor.save();
         }
-        return existingInstructor._id;
+        return instructor._id;
       })
     );
 
+    // Process students
     const studentIds = await Promise.all(
-      students.map(async (student) => {
-        let existingStudent = await User.findOne({ email: student.email, role: "student" });
-        if (!existingStudent) {
-          existingStudent = new User({
-            name: student.name,
-            email: student.email,
-            role: "student",
-            microsoftId: null,
-          });
-          await existingStudent.save();
+      students.map(async ({ name, email }) => {
+        let student = await User.findOne({ email: {$regex: new RegExp(`${email}$`, `i`)} , role: "student" });
+        if (!student) {
+          student = new User({ name, email, role: "student", microsoftId: null });
+          await student.save();
         }
-        return existingStudent._id;
+        return student._id;
       })
     );
 
