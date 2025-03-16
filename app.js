@@ -253,7 +253,7 @@ app.get("/courses/:id", isSignedIn, wrapAsync(async(req, res, next) => {
 }));
 
 //2b) Create Route - add the new course created to db
-app.post("/courses", isSignedIn, validateCourse, wrapAsync(async (req, res, next) => {
+app.post("/courses", isSignedIn, wrapAsync(async (req, res, next) => {
     // try {
         const data = req.body; // Input data
         console.log("Received data:", data);
