@@ -253,7 +253,7 @@ app.get("/courses/:id", isSignedIn, wrapAsync(async(req, res, next) => {
 }));
 
 //2b) Create Route - add the new course created to db
-app.post("/courses", isSignedIn, wrapAsync(async (req, res, next) => {
+app.post("/courses", isSignedIn, validateCourse, wrapAsync(async (req, res, next) => {
     // try {
         const data = req.body; // Input data
         console.log("Received data:", data);
@@ -264,13 +264,13 @@ app.post("/courses", isSignedIn, wrapAsync(async (req, res, next) => {
 
         // Process instructors
         for (let instructor of data.instructors) {
-            for (let i = 0; i < instructor.email.length; i++) {
-                const existingInstructor = await User.findOne({ email: instructor.email[i], role: 'instructor'});
+            // for (let i = 0; i < instructor.email.length; i++) {
+                const existingInstructor = await User.findOne({ email: instructor.email, role: 'instructor'});
                 if (!existingInstructor) {
                     // Create a new instructor if they don't exist
                     const newInstructor = new User({
-                        name: instructor.name[i],
-                        email: instructor.email[i],
+                        name: instructor.name,
+                        email: instructor.email,
                         role: 'instructor',
                         microsoftId: null,
                     });
@@ -279,18 +279,18 @@ app.post("/courses", isSignedIn, wrapAsync(async (req, res, next) => {
                 } else {
                     instructors.push(existingInstructor._id); // Use the existing instructor
                 }
-            }
+            // }
         }
 
         // Process students
         for (let student of data.students) {
-            for (let i = 0; i < student.email.length; i++) {
-                const existingStudent = await User.findOne({ email: student.email[i], role: 'student' });
+            // for (let i = 0; i < student.email.length; i++) {
+                const existingStudent = await User.findOne({ email: student.email, role: 'student' });
                 if (!existingStudent) {
                     // Create a new student if they don't exist
                     const newStudent = new User({
-                        name: student.name[i],
-                        email: student.email[i],
+                        name: student.name,
+                        email: student.email,
                         role: 'student',
                         microsoftId: null,
                     });
@@ -299,7 +299,7 @@ app.post("/courses", isSignedIn, wrapAsync(async (req, res, next) => {
                 } else {
                     students.push(existingStudent._id); // Use the existing student
                 }
-            }
+            // }
         }
 
         // Validate members
