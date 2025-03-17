@@ -255,7 +255,7 @@ app.get("/courses/:id", isSignedIn, wrapAsync(async(req, res, next) => {
     if (rubrics.length > 0) {
         for (const team of courseTeams.teams) {  // Access teams array properly
             if (team.members.some(member => member._id.toString() === req.user._id.toString())) {
-                evaluations = await Evaluation.find({ teamId: team._id });
+                evaluations = await Evaluation.find({ teamId: team._id, evaluatorId: req.user._id });
                 break;  // Stop checking if evaluation is found
             }
         }
