@@ -742,7 +742,6 @@ app.get("/:rubricId/evaluations/edit", wrapAsync(async(req,res, next) => {
         req.flash("error", "No evaluations found.");
         return res.redirect("/courses");
     }
-    console.log(evaluations[0].scores);
     res.render("./evaluation/editEvaluation.ejs", {rubric, evaluations, userTeam});
 }));
 
