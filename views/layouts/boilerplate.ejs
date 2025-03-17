@@ -13,12 +13,29 @@
 </head>
 <body>
     <%- include("../includes/navbar.ejs") %>
-    <div class = "container">
+    <div class = "container" id="content">
+        <div class="content">
         <%- include("../includes/flash.ejs") %>
         <%-body%>
+    </div>
     </div>
     <%- include("../includes/footer.ejs") %>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="/JS/script.js"></script>
+    <script>
+        const navbar = document.getElementById('navbar');
+        const content = document.getElementById('content');
+      
+        // Listen for the collapse event on the navbar
+        navbar.addEventListener('show.bs.collapse', function() {
+          // When the navbar collapses, add a class to the content
+          content.classList.add('navbar-collapsed');
+        });
+      
+        navbar.addEventListener('hidden.bs.collapse', function() {
+          // When the navbar expands, remove the class
+          content.classList.remove('navbar-collapsed');
+        });
+      </script>
 </body>
 </html>

@@ -87,6 +87,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 // Configure Microsoft authentication
+//http://localhost:3000/auth/microsoft/callback
+//https://peerevals.onrender.com/auth/microsoft/callback
 passport.use(new MicrosoftStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET_VALUE,

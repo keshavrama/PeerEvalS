@@ -38,9 +38,11 @@
         <% if(evaluations.length > 0){ %>
             <div class="eval ms-auto">
                 <% if(currUser.email.endsWith("@e.ntu.edu.sg") && currUser.email !== "nagammai001@e.ntu.edu.sg"){ %>
+                    <% if (!rubrics[0].releaseResults) { %>
                 <form method="get" action="/<%= rubrics[0]._id %>/evaluations/edit">
                     <button class = "btn btn-secondary">Edit Peer Evaluation</button>
                 </form>
+                <% } %>
                 <% } %>
                 <% if(currUser.email.endsWith("@ntu.edu.sg") || currUser.email === "nagammai001@e.ntu.edu.sg"){ %>
                 <form method = "get" action = "/<%=viewCourse._id%>/<%=rubrics[0]._id%>/scores">
