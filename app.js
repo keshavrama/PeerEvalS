@@ -651,7 +651,22 @@ app.get("/:rubricId/evaluations", wrapAsync(async(req, res, next) => {
     let {rubricId} = req.params;
     let rubric = await Rubric.findById(rubricId).populate({path:"courseId", populate:{path:"teams", populate: {path: "members"}},});
     let maxScore = rubric.criteria[0].performances.length;
-    res.render("./evaluation/evaluation.ejs", {rubric, maxScore});
+    let userTeam = rubric.courseId.teams.find(team =>
+        team.members.some(member => member._id.toString() === req.user._id.toString())
+    );
+
+    if (!userTeam) {
+        req.flash("error", "You are not assigned to a team.");
+        return res.redirect("/courses");
+    }
+
+    // Fetch only the evaluations made by the logged-in user
+    let existingEvaluations = await Evaluation.find({
+        teamId: userTeam._id,
+        rubricId: rubricId,
+        evaluatorId: req.user._id // Filter by logged-in user
+    });
+    res.render("./evaluation/evaluation.ejs", {rubric, maxScore, existingEvaluations, userTeam});
 }));
 
 app.post("/:teamId/:rubricId/evaluations",isSignedIn, wrapAsync(async (req, res, next) => {
@@ -717,7 +732,12 @@ app.get("/:rubricId/evaluations/edit", wrapAsync(async(req,res, next) => {
         req.flash("error", "You are not assigned to a team.");
         return res.redirect("/courses");
     }
-    let evaluations = await Evaluation.find({ teamId: userTeam._id, rubricId }).populate("teamId").populate("rubricId").populate("evaluateeId");
+    let evaluations = await Evaluation.find({ 
+        teamId: userTeam._id, 
+        rubricId, 
+        evaluatorId: req.user._id  // Only get evaluations by the current student
+    }).populate("teamId").populate("rubricId").populate("evaluateeId");
+
     if (!evaluations || evaluations.length === 0) {
         req.flash("error", "No evaluations found.");
         return res.redirect("/courses");
@@ -735,7 +755,8 @@ app.put("/evaluations/update",isSignedIn, wrapAsync(async (req, res, next) => {
     }
 
     for (const memberId in evalId) {
-        let evaluation = await Evaluation.findById(evalId[memberId]).populate("rubricId");
+        let evaluation = await Evaluation.findOne({ _id: evalId[memberId], evaluatorId: req.user._id }).populate("rubricId");
+
 
         if (!evaluation) continue;
 

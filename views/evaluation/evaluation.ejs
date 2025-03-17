@@ -61,7 +61,12 @@
                     </tbody>
                 </table>
              </div>
-                <button class = "mt-3 btn btn-success" type = "submit">Submit Evaluation</button>
+             <% if (existingEvaluations.length > 0) { %>
+                <button class="mt-3 btn btn-secondary" disabled>You have already submitted your evaluation</button>
+            <% } else { %>
+                <button class="mt-3 btn btn-success" type="submit">Submit Evaluation</button>
+            <% } %>
+            
             </form>
         <% } %>
       <% }); %>

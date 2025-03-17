@@ -37,8 +37,9 @@
                    <tbody>
                        <% userTeam.members.forEach((member, index) => { %>
                         <% console.log("Evaluations Data:", evaluations); %>
-                        <% let memberEval = evaluations.find(e => e.evaluateeId.equals(member._id)); 
-                           console.log("Matching Evaluation for", member.name, ":", memberEval);%>
+                        <% let memberEval = evaluations.find(e => 
+                        e.evaluatorId.toString() === currUser._id.toString() && 
+                        e.evaluateeId.toString() === member._id.toString()); %>
                            <tr>
                                <th scope="row"><%= index + 1 %></th>
                                <td><%= member.name %></td>
