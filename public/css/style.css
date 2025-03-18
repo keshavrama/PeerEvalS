@@ -12,6 +12,20 @@ body{
     height: 100%;
 }
 
+.fixed-button {
+    position: sticky;
+    bottom: 10px;
+    background-color: white; /* Ensure visibility */
+    padding: 10px;
+}
+
+.table-container {
+    max-height: 60vh; /* Adjust based on screen size */
+    overflow-y: auto;
+    padding-bottom: 20px; /* Prevents content from hiding behind button */
+}
+
+
 .container{
     flex: 1; /* A value of 1 means the element will grow to take up all available space*/
 }
