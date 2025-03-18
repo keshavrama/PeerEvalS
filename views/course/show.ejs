@@ -31,8 +31,8 @@
             <%}%>
         </span>
         <% if(evaluations.length > 0 && (currUser.email.endsWith("@e.ntu.edu.sg") && currUser.email !== "nagammai001@e.ntu.edu.sg")){%>
-            <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-placement="right" data-bs-trigger="hover focus" data-bs-content="Evaluation can only be edited.">
-                <button class="btn btn-outline-primary" disabled>Peer Evaluation</button>
+            <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-placement="right" data-bs-trigger="hover focus" data-bs-content="Your submission is complete. You can choose to edit the evaluation.">
+                <button class="btn btn-outline-primary" disabled><i class="fa-solid fa-circle-check green-tick"></i>&nbsp;&nbsp;&nbsp;Peer Evaluation</button>
             </span>
         <% } %>
         <% if(evaluations.length > 0){ %>
@@ -116,7 +116,7 @@
                         <td>
                             <ul>
                                 <% criterion.performances.forEach((performance) => { %>
-                                    <li><i>Score <%= performance.level %></i>: <%= performance.description %></li>
+                                    <li><i><b>Score <%= performance.level %></b></i>: <%= performance.description %></li>
                                 <% }) %>
                             </ul>
                         </td>

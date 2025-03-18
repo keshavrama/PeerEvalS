@@ -41,13 +41,17 @@
                                             let radioName = `scores[${member._id}][${i}]`; 
                                             let radioId = `score-${member._id}-${i}-${j}`;
                                         %>
-                                        <td>
+                                        <% let borderStyle = j === criteria.performances.length - 1 ? 'border-right: 3px solid black;' : ''; %>
+                                        <td style="<%= borderStyle %>">
                                                 <input type="radio" class="btn-check score-radio" name="scores[<%= member._id %>][<%= i %>]" 
                                                 id="score-<%= member._id %>-<%= i %>-<%= j %>" value="<%= j + 1 %>" data-member="<%= member._id %>"
                                                 data-criteria="<%= i %>"
                                                 data-weight="<%= criteria.weight %>"
                                                 data-max-score="<%= rubric.criteria[i].performances.length %>" autocomplete="off" required>
-                                                <label class="btn btn-outline-primary" for="<%= radioId %>"><%= j + 1 %></label>
+                                                <label class="btn btn-outline-primary" for="<%= radioId %>"
+                                                    data-bs-toggle="tooltip" data-bs-title="<%= criteria.performances[criteria.performances.length - 1 - j].description %>">
+                                                    <%= j + 1 %>
+                                                </label>
                                         </td>
                                     <% }); %>
                                 <% }); %>
@@ -99,6 +103,10 @@
 
             document.getElementById(`total-${memberId}`).innerText = total.toFixed(2) + "%";
         }
+    });
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 });
 

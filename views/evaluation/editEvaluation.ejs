@@ -54,14 +54,18 @@
                                             console.log("Member:", member.name, "Criteria:", criteria.name, "Existing Score:", existingScore); 
 
                                        %>
-                                       <td>
+                                       <% let borderStyle = j === criteria.performances.length - 1 ? 'border-right: 3px solid black;' : ''; %>
+                                       <td style="<%= borderStyle %>">
                                         <input type="radio" class="btn-check score-radio" name="<%= radioName %>" 
                                         id="<%= radioId %>" value="<%= j + 1 %>" data-member="<%= member._id %>"
                                         data-criteria="<%= i %>"
                                         data-weight="<%= criteria.weight %>"
                                         data-max-score="<%= rubric.criteria[i].performances.length %>" 
                                         autocomplete="off" <%= isChecked ? "checked" : "" %>>
-                                        <label class="btn btn-outline-primary" for="<%= radioId %>"><%= j + 1 %></label>
+                                        <label class="btn btn-outline-primary" for="<%= radioId %>"
+                                            data-bs-toggle="tooltip" data-bs-title="<%= criteria.performances[criteria.performances.length - 1 - j].description %>">
+                                            <%= j + 1 %>
+                                        </label>
                                        </td>
                                    <% }); %>
                                <% }); %>
@@ -101,5 +105,10 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById(`total-${memberId}`).innerText = total.toFixed(2) + "%";
         }
     });
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
 });
+
 </script>
