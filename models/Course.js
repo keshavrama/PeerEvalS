@@ -1,7 +1,4 @@
 const mongoose = require("mongoose");
-const Rubric = "./Rubric.js";
-const User = "./User.js";
-const Team = "./Team.js";
 
 let courseSchema = new mongoose.Schema({
     description: { //courseName e.g. strat mgt

@@ -19,7 +19,7 @@ async function main(){
 
 const initDB = async () => {
     // // await User.deleteMany({}); //delete all the existing data in the users collection. User. means User model
-    // // await User.insertMany(initData.users); //reference the key
+    // // await User.insertMany(initData.users); //reference key
     // // await Course.deleteMany({});
     // // await Course.insertMany(initData.courses);
     // // await Team.insertMany(initData.teams);
@@ -37,7 +37,7 @@ const initDB = async () => {
         console.log("Courses initialized.");
     }
 
-    // // Insert courses if they don't already exist
+    // // Insert courses if they don't exist
     // const existingCourses = await Course.find({});
     // if (existingCourses.length === 0) {
     //     await Course.insertMany(initData.courses);
@@ -50,7 +50,7 @@ const initDB = async () => {
 
     // }
 
-    // // Delete teams if they already exist
+    // // Delete team that exist
     // const existingTeams = await Team.find({});
     // if (existingTeams.length !== 0) {
     //     await Team.deleteMany({});
@@ -60,11 +60,9 @@ const initDB = async () => {
     for (let team of initData.teams) {
         const newTeam = new Team(team);
         await newTeam.save();
-        // // Find the course by course ObjectId
         const course = await Course.findById(team.course);
 
         if (course) {
-            // Push the team into the course's teams array
             course.teams.push( newTeam._id );
             await course.save();
         }

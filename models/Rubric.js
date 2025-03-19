@@ -50,8 +50,6 @@ const RubricSchema = new mongoose.Schema({
     required: true,
   },
   courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
-  // scale: { type: Number, required: true },
-  // items: { type: [RubricItemSchema], required: true },
   criteria: {
     type: [criteriaSchema],
     required: true

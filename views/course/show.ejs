@@ -10,18 +10,18 @@
         </span>
         <br>
         <% if(currUser.email.endsWith("@e.ntu.edu.sg") && currUser.email !== "nagammai001@e.ntu.edu.sg"){ %>
-        <% if (rubrics[0].releaseResults) { %>
+            <% if (rubrics[0].releaseResults) { %>
             <span class="addbtn">
                 <a href="/<%= currUser._id %>/<%= rubrics[0]._id %>/results" class="btn btn-outline-success">View Results</a>
             </span>
-        <% } %>
+            <% } %>
         <%}%>
         <br>
         <span>
             <% if(rubrics.length > 0 && evaluations.length === 0 && (currUser.email.endsWith("@e.ntu.edu.sg") && currUser.email !== "nagammai001@e.ntu.edu.sg")){ %>
-            <form method = "get" action = "/<%=rubrics[0]._id%>/evaluations">
-                <button class = "btn btn-outline-primary">Peer Evaluation</button>
-            </form>
+                <form method = "get" action = "/<%=rubrics[0]._id%>/evaluations">
+                    <button class = "btn btn-outline-primary">Peer Evaluation</button>
+                </form>
             <%} %>
 
             <% if(rubrics.length == 0 && (currUser.email.endsWith("@e.ntu.edu.sg") && currUser.email !== "nagammai001@e.ntu.edu.sg")){%>
@@ -35,27 +35,27 @@
                 <button class="btn btn-outline-primary" disabled><i class="fa-solid fa-circle-check green-tick"></i>&nbsp;&nbsp;&nbsp;Peer Evaluation</button>
             </span>
         <% } %>
-        <% if(evaluations.length > 0){ %>
             <div class="eval ms-auto">
-                <% if(currUser.email.endsWith("@e.ntu.edu.sg") && currUser.email !== "nagammai001@e.ntu.edu.sg"){ %>
-                    <% if (!rubrics[0].releaseResults) { %>
-                <form method="get" action="/<%= rubrics[0]._id %>/evaluations/edit">
-                    <button class = "btn btn-secondary">Edit Peer Evaluation</button>
-                </form>
-                <% } %>
+                <% if(evaluations.length > 0){ %>
+                    <% if(currUser.email.endsWith("@e.ntu.edu.sg") && currUser.email !== "nagammai001@e.ntu.edu.sg"){ %>
+                        <% if (!rubrics[0].releaseResults) { %>
+                            <form method="get" action="/<%= rubrics[0]._id %>/evaluations/edit">
+                                <button class = "btn btn-secondary">Edit Peer Evaluation</button>
+                            </form>
+                        <% } %>
+                    <% } %>
                 <% } %>
                 <% if(currUser.email.endsWith("@ntu.edu.sg") || currUser.email === "nagammai001@e.ntu.edu.sg"){ %>
-                <form method = "get" action = "/<%=viewCourse._id%>/<%=rubrics[0]._id%>/scores">
-                    <button class = "btn btn-primary">View Scores</button>
-                </form>
-                <% if (!rubrics[0].releaseResults) { %>
-                <form onsubmit="return studentViewResults(event, '<%= rubrics[0]._id %>')">
-                    <button type = "submit" class = "btn btn-outline-success btn-sm">Release Results</button>
-                </form>
-                <% } %>
+                    <form method = "get" action = "/<%=viewCourse._id%>/<%=rubrics[0]._id%>/scores">
+                        <button class = "btn btn-primary">View Scores</button>
+                    </form>
+                    <% if (!rubrics[0].releaseResults) { %>
+                        <form onsubmit="return studentViewResults(event, '<%= rubrics[0]._id %>')">
+                            <button type = "submit" class = "btn btn-outline-success btn-sm">Release Results</button>
+                        </form>
+                    <% } %>
                 <% } %>
             </div>
-    <% } %>
     </div>
     <div class=" mt-3 course-info">
         <p><b>Description: </b><%= viewCourse.description %></p>
@@ -133,11 +133,11 @@
                         Team <%=team.teamIndex%>
                         &nbsp; &nbsp; &nbsp;
                         <% if(currUser.email.endsWith("@ntu.edu.sg") || currUser.email === "nagammai001@e.ntu.edu.sg"){ %>
-                        <a href = "/teams/<%=team._id %>/edit">Edit Team</a>
-                        &nbsp; &nbsp; &nbsp;
-                        <form method="POST" action="/<%= team.course._id %>/teams/<%= team._id %>?_method=DELETE" style="display: inline;">
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
+                            <a href = "/teams/<%=team._id %>/edit">Edit Team</a>
+                            &nbsp; &nbsp; &nbsp;
+                            <form method="POST" action="/<%= team.course._id %>/teams/<%= team._id %>?_method=DELETE" style="display: inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
                         <% } %>
                     </div>
                     <ul class="list-group list-group-flush">
@@ -146,28 +146,29 @@
                         <% } %>
                     </ul>
                </div>
-           <%}%>
-   </div>
-   <br>
-   <% if(currUser.email.endsWith("@ntu.edu.sg") || currUser.email === "nagammai001@e.ntu.edu.sg"){ %>
-    <a href="/courses/<%= viewCourse._id %>/edit">Edit this Course Details</a> 
-    &nbsp; &nbsp; &nbsp;
-    <% if (rubrics.length === 0) { %>
-    <a href="/rubrics/<%= viewCourse._id %>/new">Add Rubrics</a>
-    <% } else { %>
-    <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="hover focus" data-bs-content="Rubrics already exist.">
-        <a class="disabled-link" tabindex="-1" disabled>Add Rubrics</a>
-    </span>
-    <% } %>
-    &nbsp; &nbsp; &nbsp;
-    <% if ( courseTeams.teams.flatMap(team => team.members).length < viewCourse.students.length){ %>
-        <a href="/teams/<%= viewCourse._id %>/new" class="btn btn-primary">Create Teams</a>
-    <% } else { %>
-        <span class="mb-3 d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="hover focus" data-bs-content="All students have been assigned to teams.">
-            <button class="btn btn-primary" type="button" disabled>Create Teams</button>
-        </span>
-    <% } %>
+            <%}%>
+    </div>
+    <br>
+    <% if(currUser.email.endsWith("@ntu.edu.sg") || currUser.email === "nagammai001@e.ntu.edu.sg"){ %>
+        <a href="/courses/<%= viewCourse._id %>/edit">Edit this Course Details</a> 
+        &nbsp; &nbsp; &nbsp;
+        <% if (rubrics.length === 0) { %>
+            <a href="/rubrics/<%= viewCourse._id %>/new">Add Rubrics</a>
+        <% } else { %>
+            <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="hover focus" data-bs-content="Rubrics already exist.">
+                <a class="disabled-link" tabindex="-1" disabled>Add Rubrics</a>
+            </span>
+        <% } %>
+        &nbsp; &nbsp; &nbsp;
+        <% if ( courseTeams.teams.flatMap(team => team.members).length < viewCourse.students.length){ %>
+            <a href="/teams/<%= viewCourse._id %>/new" class="btn btn-primary">Create Teams</a>
+        <% } else { %>
+            <span class="mb-3 d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="hover focus" data-bs-content="All students have been assigned to teams.">
+                <button class="btn btn-primary" type="button" disabled>Create Teams</button>
+            </span>
+        <% } %>
     <%}%>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
@@ -188,7 +189,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload(); // Reload to update UI from database
+                location.reload(); // to update the UI from db
             }
         });
     }

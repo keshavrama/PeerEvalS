@@ -47,12 +47,10 @@
         const students = <%- JSON.stringify(course.students.map(student => student.name)) %>;
         console.log("Students array:", students); 
         document.addEventListener('DOMContentLoaded', function () {
-            // Ensure buttons are accessible
             const addMemberButton = document.getElementById('addMemberBtn');
             const formTeamButton = document.getElementById('formTeamBtn');
 
             if (addMemberButton && formTeamButton) {
-                // Add event listeners
                 addMemberButton.addEventListener('click', function () {
                     console.log("Add Member Button Clicked");
                     addMembers();
@@ -66,10 +64,9 @@
                 console.error("Buttons not found");
             }
 
-            let selectedTeams = new Set();  // Store used team indexes
+            let selectedTeams = new Set();  
             let assignedStudents = new Set();
 
-            // Define addMembers function
             window.addMembers = function () {
                 console.log("addMembers function called");
                 const memberContainer = document.getElementById("members");
@@ -86,7 +83,6 @@
                 memberContainer.appendChild(newMember);
             };
 
-            // Define formTeam function
             window.formTeam = function () {
                 console.log("formTeam function called");
                 const teamIndexInput = document.querySelector("input[name='teamIndex']");
@@ -107,9 +103,7 @@
                     return;
                 }
 
-                // Add team index to the set
                 selectedTeams.add(teamIndex);
-                // Add members to the assigned set
                 selectedMembers.forEach(member => assignedStudents.add(member));
 
                 const teamContainer = document.querySelector(".team-container");
@@ -126,7 +120,7 @@
                 `;
                 teamContainer.appendChild(newTeamCard);
 
-                // Add hidden inputs for team data
+                // Hidden inputs for team data
                 const form = document.querySelector("form");
                 selectedMembers.forEach((member, index) => {
                 const inputTeamIndex = document.createElement("input");
@@ -143,14 +137,14 @@
                 inputTeamIndex.value = teamIndex;
                 form.appendChild(inputTeamIndex);
 
-                // Update the dropdowns
+                // Update the dropdown
                 updateAvailableStudents();
 
                 // Disable used team index
                  teamIndexInput.value = "";
             };
 
-            // Function to get available students
+            // to get available students
             function getAvailableStudents() {
                 return students
                     .filter(student => !assignedStudents.has(student))
@@ -158,7 +152,7 @@
                     .join('');
             }
 
-            // Function to update the available students dropdowns
+            // to update the available students dropdowns
             function updateAvailableStudents() {
                 document.querySelectorAll(".member-select").forEach(select => {
                     select.innerHTML = `<option selected>Add a Member</option>` + getAvailableStudents();

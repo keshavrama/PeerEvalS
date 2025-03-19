@@ -15,19 +15,19 @@ body{
 .fixed-button {
     position: sticky;
     bottom: 10px;
-    background-color: white; /* Ensure visibility */
+    background-color: white; /* to make it visible */
     padding: 10px;
 }
 
 .table-container {
-    max-height: 60vh; /* Adjust based on screen size */
+    max-height: 60vh; 
     overflow-y: auto;
-    padding-bottom: 20px; /* Prevents content from hiding behind button */
+    padding-bottom: 20px; 
 }
 
 
 .container{
-    flex: 1; /* A value of 1 means the element will grow to take up all available space*/
+    flex: 1; /* element will grow to take up all available space*/
 }
 
 /* Navbar */
@@ -62,7 +62,7 @@ body{
 }
 
 .footer {
-    margin-top: auto; /* Push the footer to the bottom */
+    margin-top: auto; 
 }
 
 .f-info-links a:hover{
@@ -112,9 +112,9 @@ body{
 }
 
 .disabled-link {
-    pointer-events: none; /* Prevents clicks */
-    opacity: 0.5; /* Makes it look disabled */
-    cursor: not-allowed; /* Shows disabled cursor */
+    pointer-events: none; 
+    opacity: 0.5; 
+    cursor: not-allowed; 
 }
 
 /*login*/
@@ -137,6 +137,9 @@ body{
 .login-card{
     padding: 0!important;
 }
+
+/* others */
+
 .x-icon {
     height: 1em;
     width: 1em;
@@ -162,12 +165,12 @@ body{
 }
 
 .card-img-overlay{
-    opacity: 0; /* overlay invisible */
+    opacity: 0; 
 }
 
 .card-img-overlay:hover{
     opacity: 0.2;
-    background-color: white; /* overlay slightly visible */
+    background-color: white; 
 }
 
 .home{

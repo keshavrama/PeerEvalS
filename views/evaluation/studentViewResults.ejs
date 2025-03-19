@@ -1,24 +1,34 @@
 <% layout("/layouts/boilerplate") %>
 
 
-    <div class="col-8 offset-3"> <!--element will occupy 8 out of 12 columns & skip the first 3 columns, leaving 1 col space on right-->
-        <h3>Peer Evaluation Results for <%=rubric.courseId.courseCode%> <%=rubric.courseId.description%></h3>
-    </div>
+<div class="col-8 offset-3"> <!--element will occupy 8 out of 12 columns & skip the first 3 columns, leaving 1 col space on right-->
+    <h3>Peer Evaluation Results for <%=rubric.courseId.courseCode%> <%=rubric.courseId.description%></h3>
+</div>
     
-    <div class="mb-3 card col-6 offset-3 show-card listing-card" >
-        <img src="/images/ntu.jpg" class="card-img-top show-img" alt="NTU">
-        <div class="card-img-overlay"></div>
-        <div class="card-body">
-            <h3 class="card-title">Score: <i><%= avgScore !== null ? avgScore + "%" : "No score yet" %></i></h3>
-            <h3 class="card-text"><%= grade %></h3>
-            <h4>Strengths:</h4>  
-            <% evals.forEach(eval => { %>
-                <p class="card-text"><%= eval.feedback[0]?.strength || "N/A" %></p>
-            <% }) %>
-            <h4>Areas to Improve:</h4>
-            <% evals.forEach(eval => { %>
-                <p class="card-text"><%= eval.feedback[0]?.improve || "N/A" %></p>
-            <% }) %>
-        </div>
+<div class="mb-3 card col-6 offset-3 show-card listing-card" >
+    <img src="/images/ntu.jpg" class="card-img-top show-img" alt="NTU">
+    <div class="card-img-overlay"></div>
+    <div class="card-body">
+        <h3 class="card-title">Score: <i><%= avgScore !== null ? avgScore + "%" : "No score yet" %></i></h3>
+        <h3 class="card-text"><%= grade %></h3>
+        <h4>Strengths:</h4>  
+        <% evals.forEach(eval => { %>
+            <% if (eval.feedback[0]?.strength) { %>
+                <p class="card-text"><%= eval.feedback[0]?.strength %></p>
+            <%}%>
+        <% }) %>
+        <h4>Areas to Improve:</h4>
+        <% evals.forEach(eval => { %>
+            <% if (eval.feedback[0]?.improve) { %>
+                <p class="card-text"><%= eval.feedback[0]?.improve%></p>
+            <%}%>
+        <% }) %>
+        <h4>Other Comments:</h4>
+        <% evals.forEach(eval => { %>
+            <% if (eval.feedback[0]?.other) { %>
+                <p class="card-text"><%= eval.feedback[0]?.other%></p>
+            <%}%>
+        <% }) %>
     </div>
+</div>
 

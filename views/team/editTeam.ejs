@@ -24,7 +24,7 @@
         function removeEmptyInputs() {
             document.querySelectorAll('input[name="members[]"]').forEach(input => {
             if (input.value.trim() === "") {
-                input.parentElement.remove(); // Remove the input if empty
+                input.parentElement.remove(); // Remove input if its empty
             }
         });
         }
