@@ -750,10 +750,10 @@ app.get("/:id/:rubricId/scores", isSignedIn, wrapAsync(async (req, res, next) =>
     });
 
     evaluations.forEach(evaluation => {
-        let evaluateeId = evaluation.evaluateeId;
+        let { evaluateeId, evaluatorId, total } = evaluation;
 
-        if (studentScores[evaluateeId]) {
-            studentScores[evaluateeId].totalScore += evaluation.total;
+        if (evaluateeId.toString() !== evaluatorId.toString() && studentScores[evaluateeId]) {
+            studentScores[evaluateeId].totalScore += total;
             studentScores[evaluateeId].count += 1;
         }
     });
@@ -776,9 +776,10 @@ app.get("/:studentId/:rubricId/results", isSignedIn, wrapAsync(async (req, res, 
     let { studentId, rubricId } = req.params;
     let user = await User.findById(studentId);
     let rubric = await Rubric.findById(rubricId).populate("courseId");
-    let evaluations = await Evaluation.find({ rubricId }).populate("evaluateeId");
+    let evaluations = await Evaluation.find({ rubricId }).populate("evaluateeId").populate("evaluatorId");
     console.log("this is", evaluations);
-    let evals = evaluations.filter(evaluation => evaluation.evaluateeId._id.toString() === studentId);
+    let evals = evaluations.filter(evaluation => evaluation.evaluateeId._id.toString() === studentId &&
+    evaluation.evaluatorId._id.toString() !== studentId);
     console.log(evals);
 
     let totalScore = evals.reduce((sum, evaluation) => sum + evaluation.total, 0);
