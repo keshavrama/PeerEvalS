@@ -45,7 +45,7 @@
                         <% } %>
                     <% } %>
                 <% } %>
-                <% if(currUser.email.endsWith("@ntu.edu.sg") || currUser.email === "nagammai001@e.ntu.edu.sg"){ %>
+                <% if(currUser.email.endsWith("@ntu.edu.sg") || currUser.email === "nagammai001@e.ntu.edu.sg" && rubrics.length >0){ %>
                     <form method = "get" action = "/<%=viewCourse._id%>/<%=rubrics[0]._id%>/scores">
                         <button class = "btn btn-primary">View Scores</button>
                     </form>

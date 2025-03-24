@@ -76,8 +76,8 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     cookie: {
-        // expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        // expires: Date.now() + 60 * 60 * 1000, 
+        maxAge: 60 * 60 * 1000, // 1 hour in milliseconds. if user inactive for more than an hour, user will be logged out
         httpOnly: true,
     }
 }));
