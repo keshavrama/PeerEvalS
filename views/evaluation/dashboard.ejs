@@ -1,4 +1,6 @@
 <% layout("/layouts/boilerplate") %>
+<% const maxScore = Math.max(...rubric.criteria.flatMap(c => c.performances.map(p => p.level))); %>
+
 <div class="mt-3">
     <form method="get" action="/<%= course._id %>/<%=rubric._id%>/scores" class="m-0">
         <button class="btn btn-outline-dark">← Back to Course</button>
@@ -7,40 +9,81 @@
     <h3>Dashboard - <%= course.courseCode %> <%= course.description %></h3>
 </div>
 
-<% Object.entries(averageTeamScores).forEach(([criteria, teamData], index) => { 
-    const labels = Object.keys(teamData);
-    const data = Object.values(teamData);
-    const chartId = `chart-${index}`;
-%>
-    <div class="mb-5">
-        <h5><%= criteria %></h5>
-        <canvas id="<%= chartId %>"></canvas>
-    </div>
+<div class="mb-5">
+    <canvas id="teamPerformanceChart" style="max-height: 500px;"></canvas>
+</div>
 
-    <script>
-    const ctx = document.getElementById('<%= chartId %>').getContext('2d');
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const averageTeamScores = <%- JSON.stringify(averageTeamScores) %>;
+
+    const criteriaLabels = Object.keys(averageTeamScores);
+    const teamNamesSet = new Set();
+
+    criteriaLabels.forEach(criteria => {
+        Object.keys(averageTeamScores[criteria]).forEach(teamName => {
+            teamNamesSet.add(teamName);
+        });
+    });
+
+    const teamNames = Array.from(teamNamesSet);
+
+    // const colorPalette = [
+    //     'rgba(255, 99, 132, 0.7)',
+    //     'rgba(54, 162, 235, 0.7)',
+    //     'rgba(255, 206, 86, 0.7)',
+    //     'rgba(75, 192, 192, 0.7)',
+    //     'rgba(153, 102, 255, 0.7)',
+    //     'rgba(255, 159, 64, 0.7)'
+    // ];
+    function generateColor(index, total) {
+        const hue = (index * 360 / total) % 360;
+        return `hsl(${hue}, 70%, 60%)`;
+    }
+
+    const datasets = teamNames.map((teamName, index) => {
+        const data = criteriaLabels.map(criteria => {
+            return averageTeamScores[criteria][teamName] || 0;
+        });
+        return {
+            label: teamName,
+            data: data,
+            backgroundColor: generateColor(index, teamNames.length)
+        };
+    });
+
+    const ctx = document.getElementById("teamPerformanceChart").getContext("2d");
     new Chart(ctx, {
-        type: 'bar',
+        type: "bar",
         data: {
-            labels: <%- JSON.stringify(labels) %>,
-            datasets: [{
-                label: '<%= criteria %>',
-                data: <%- JSON.stringify(data) %>,
-                backgroundColor: 'rgba(54, 162, 235, 0.7)'
-            }]
+            labels: criteriaLabels,
+            datasets: datasets
         },
         options: {
             responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Average Team Scores by Rubric Criteria"
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 5
+                    max: <%= maxScore %>,
+                    title: {
+                        display: true,
+                        text: "Score"
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: "Criteria"
+                    }
                 }
             }
         }
     });
 </script>
-
-<% }); %>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
