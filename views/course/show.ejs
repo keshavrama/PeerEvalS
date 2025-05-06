@@ -8,6 +8,13 @@
                 <button class = "btn btn-outline-primary">Course Info</button>
             </form>
         </span>
+        
+        <% if(currUser.email.endsWith("@ntu.edu.sg") || currUser.email === "nagammai001@e.ntu.edu.sg" && rubrics.length >0){ %>
+            <span>
+                <a href="/<%=viewCourse._id%>/<%= rubrics[0]._id %>/completed" class="btn btn-outline-primary">View Completed</a>
+            </span>
+        <%}%>
+        
         <br>
         <% if(currUser.email.endsWith("@e.ntu.edu.sg") && currUser.email !== "nagammai001@e.ntu.edu.sg"){ %>
             <% if (rubrics[0].releaseResults) { %>
@@ -51,7 +58,9 @@
                     </form>
                     <% if (!rubrics[0].releaseResults) { %>
                         <form onsubmit="return studentViewResults(event, '<%= rubrics[0]._id %>')">
-                            <button type = "submit" class = "btn btn-outline-success btn-sm">Release Results</button>
+                            <span data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="hover focus" data-bs-content="<%= allEvaluated ? '' : 'Release results once evaluations have been fully completed' %>">
+                                <button type = "submit" class = "btn btn-outline-success btn-sm" <%= !allEvaluated ? 'disabled' : '' %>>Release Results</button>
+                            </span>
                         </form>
                     <% } %>
                 <% } %>

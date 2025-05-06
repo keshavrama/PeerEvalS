@@ -28,6 +28,13 @@ store.on("error", () => {
     console.log("Error in Mongo Session Store", err);
 })
 
+const multer = require('multer');
+const XLSX = require('xlsx');
+const upload = multer({ 
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 2 * 1024 * 1024 } //2 MB limit
+}); // Store file in memory
+
 const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
 
@@ -257,18 +264,51 @@ app.get("/courses/:id", isSignedIn, wrapAsync(async (req, res, next) => {
             }
         }
     }
-    res.render("./course/show.ejs", { viewCourse: course, courseTeams, rubrics, evaluations });
+    let evalns = await Evaluation.find({ rubricId: rubrics._id });
+    const evaluatedStudentIds = new Set(evalns.map(e => e.evaluateeId.toString()));
+
+    const allEvaluated = course.students.every(student => 
+        evaluatedStudentIds.has(student._id.toString())
+    );
+    res.render("./course/show.ejs", { viewCourse: course, courseTeams, rubrics, evaluations, allEvaluated });
 }));
 
 //2b) Create Route - add the new course created to db
-app.post("/courses", isSignedIn, wrapAsync(async (req, res, next) => {
+app.post("/courses", isSignedIn, upload.single('studentFile'), wrapAsync(async (req, res, next) => {
     const { description, courseCode, courseId } = req.body;
     const instructors = Object.values(req.body.instructors || {}); // Convert to array
-    const students = Object.values(req.body.students || {}); // Convert to array
+    let students = Array.isArray(req.body.students)? req.body.students: Object.values(req.body.students || {}); // Convert to array
+
+    students = students.filter(s => s.name?.trim() && s.email?.trim());
+
+    // If prof uploads excel
+    if (req.file) {
+        const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const studentData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+        const parsedStudents = studentData.map((row) => {
+            const name = row.Name || row.name || row.NAME;
+            const email = row.Email || row.email || row.EMAIL;
+            return {
+                name: name?.trim(),
+                email: email?.trim(),
+            };
+        }).filter(s => s.name && s.email); // Only valid rows
+
+        students = [...students, ...parsedStudents];
+    }
 
     if (!instructors.length) throw new ExpressError(400, "At least one instructor is required.");
     if (!students.length) throw new ExpressError(400, "At least one student is required.");
-
+    
+    for (let student of students) {
+        if (!student.email.endsWith("@e.ntu.edu.sg")) {
+            throw new ExpressError(400, `Invalid NTU email: ${student.email}`);
+        }
+    }
+    
     // instructors
     const instructorIds = await Promise.all(
         instructors.map(async ({ name, email }) => {
@@ -741,6 +781,11 @@ app.get("/:id/:rubricId/scores", isSignedIn, wrapAsync(async (req, res, next) =>
     let course = await Course.findById(id).populate("students");
     let rubric = await Rubric.findById(rubricId);
     let evaluations = await Evaluation.find({ rubricId });
+    const evaluatedStudentIds = new Set(evaluations.map(e => e.evaluateeId.toString()));
+
+    const allEvaluated = course.students.every(student => 
+        evaluatedStudentIds.has(student._id.toString())
+    );
     // map tracks the scores and count of evaluations
     let studentScores = {};
 
@@ -757,19 +802,60 @@ app.get("/:id/:rubricId/scores", isSignedIn, wrapAsync(async (req, res, next) =>
             studentScores[evaluateeId].count += 1;
         }
     });
-    res.render("./evaluation/allScores.ejs", { course, rubric, studentScores });
+    res.render("./evaluation/allScores.ejs", { course, rubric, studentScores, allEvaluated});
 }));
 
 app.get("/:rubricId/:studentId/viewDetailByEvaluatee", isSignedIn, wrapAsync(async (req, res, next) => {
     let { rubricId, studentId } = req.params;
     let user = await User.findById(studentId);
-    let rubric = await Rubric.findById(rubricId);
+    let rubric = await Rubric.findById(rubricId).populate("courseId");
+    let course = rubric.courseId;
     let evaluations = await Evaluation.find({ rubricId }).populate("evaluateeId").populate("evaluatorId");
 
     let evals = evaluations.filter(evaluation => evaluation.evaluateeId._id.toString() === studentId);
     console.log(evals);
-    res.render("./evaluation/viewDetailByEvaluatee.ejs", { user, evals, rubric });
+    res.render("./evaluation/viewDetailByEvaluatee.ejs", { user, evals, rubric, course });
 }));
+
+//Dashboard [Professors]
+app.get("/:id/:rubricId/dashboard", isSignedIn, wrapAsync(async (req, res, next) => {
+    const { id, rubricId } = req.params;
+    const course = await Course.findById(id).populate("teams");
+    const rubric = await Rubric.findById(rubricId);
+    const evaluations = await Evaluation.find({ rubricId });
+
+    const teamScores = {}; 
+
+    evaluations.forEach(evaluation => {
+        const teamId = evaluation.teamId?.toString();
+        const team = course.teams.find(t => t._id.toString() === teamId);
+        if (!team) return;
+
+        const teamName = team.teamIndex;
+        if (!teamScores[teamName]) teamScores[teamName] = {};
+
+        evaluation.scores.forEach(scoreObj => {
+            const { criteria, score } = scoreObj;
+            if (!teamScores[teamName][criteria]) {
+                teamScores[teamName][criteria] = [];
+            }
+            teamScores[teamName][criteria].push(score);
+        });
+    });
+
+    const averageTeamScores = {}; 
+
+    Object.entries(teamScores).forEach(([teamName, criteriaObj]) => {
+        Object.entries(criteriaObj).forEach(([criteria, scores]) => {
+            if (!averageTeamScores[criteria]) averageTeamScores[criteria] = {};
+            const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+            averageTeamScores[criteria][teamName] = parseFloat(avg.toFixed(2));
+        });
+    });
+
+    res.render("./evaluation/dashboard.ejs", { course, rubric, averageTeamScores });
+}));
+
 
 //Release Results to students
 app.get("/:studentId/:rubricId/results", isSignedIn, wrapAsync(async (req, res, next) => {
@@ -809,9 +895,39 @@ app.post("/:rubricId/release-results", async (req, res) => {
     res.json({ success: true }); 
 });
 
+app.get("/:id/:rubricId/completed", isSignedIn, wrapAsync(async (req, res, next) => {
+    const { id, rubricId } = req.params;
+
+    const course = await Course.findById(id).populate("students");
+    const rubric = await Rubric.findById(rubricId).populate("courseId");
+    const evaluations = await Evaluation.find({ rubricId });
+
+    const completedIds = new Set(evaluations.map(e => e.evaluatorId.toString()));
+
+    const studentStatuses = course.students.filter(s => s.role === "student") 
+    .map((student, index) => ({
+        no: index + 1,
+        name: student.name,
+        email: student.email,
+        completed: completedIds.has(student._id.toString())
+    }));
+
+    res.render("./evaluation/ViewCompleted.ejs", { course, rubric, studentStatuses });
+}));
+
+
 app.all("*", (req, res, next) => { //all the routes that do not match the ones coded above like localhost:3000/random will show this err
     next(new ExpressError(404, "page not found"));
 });
+
+app.use((err, req, res, next) => {
+    if (err.code === "LIMIT_FILE_SIZE") {
+        req.flash("error", "File too large. Max 2MB allowed.");
+        return res.redirect("back");
+    }
+    next(err);
+});
+
 
 app.use((err, req, res, next) => {
     let { statusCode = 500, message = "something went wrong" } = err;

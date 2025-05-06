@@ -1,4 +1,7 @@
 <% layout("/layouts/boilerplate") %>
+<form method="get" action="/<%=course._id%>/<%= rubric._id %>/scores">
+    <button class="btn btn-outline-dark">← Back to Course</button>
+</form>
 <div class="mt-3">
     <h3>View Detail by Evaluatee</h3>
     <h5>Evaluatee: <%= user.name %></h5>

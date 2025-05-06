@@ -16,7 +16,7 @@
     <div class="container mt-4">
         <div class="col-lg-8 mx-auto">
             <h3 class="mb-4">Add a New Course</h3>
-            <form method="POST" action="/courses" class="needs-validation" novalidate>
+            <form method="POST" action="/courses" enctype="multipart/form-data" class="needs-validation" novalidate>
                 <div class="mb-3">
                     <label class="form-label">Description:</label>
                     <textarea name="description" placeholder="Enter Description" class="form-control" required></textarea>
@@ -38,26 +38,31 @@
                     <div class="instructor-entry">
                         <div class="mb-3">
                             <label class="form-label">Name:</label>
-                            <input type="text" name="instructors[][name]" placeholder="Enter Name" class="form-control" required>
+                            <input type="text" name="instructors[0][name]" placeholder="Enter Name" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Email:</label>
-                            <input type="email" name="instructors[][email]" placeholder="Enter Email" class="form-control" required>
+                            <input type="email" name="instructors[0][email]" placeholder="Enter Email" class="form-control" required>
                         </div>
                     </div>
                 </div>
                 <button type="button" class="btn btn-dark mt-2" onclick="addInstructors()">Add More Instructors</button>
 
                 <h4 class="mt-4">Students</h4>
+                <div class="mb-3">
+                    <label class="form-label">Upload Excel File (.xlsx):</label>
+                    <input type="file" name="studentFile" accept=".xlsx" class="form-control">
+                    <small class="form-text text-muted">Optional: Upload an Excel file instead of manually adding students.</small>
+                </div>
                 <div id="students">
                     <div class="student-entry">
                         <div class="mb-3">
                             <label class="form-label">Name:</label>
-                            <input type="text" name="students[][name]" placeholder="Enter Name" class="form-control" required>
+                            <input type="text" name="students[0][name]" placeholder="Enter Name" class="form-control">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Email:</label>
-                            <input type="email" name="students[][email]" placeholder="Enter Email" class="form-control" required>
+                            <input type="email" name="students[0][email]" placeholder="Enter Email" class="form-control">
                         </div>
                     </div>
                 </div>
@@ -108,6 +113,30 @@
             `;
             container.appendChild(div);
         }
+    </script>
+    
+    <script>
+        document.querySelector('input[name="studentFile"]').addEventListener('change', function () {
+            const fileSelected = this.files.length > 0;
+            const studentEntries = document.getElementById("students");
+    
+            if (fileSelected) {
+                studentEntries.style.display = "none";
+    
+                const inputs = studentEntries.querySelectorAll("input");
+                inputs.forEach(input => {
+                    input.disabled = true;
+                    input.value = ""; 
+                });
+            } else {
+                studentEntries.style.display = "block";
+    
+                const inputs = studentEntries.querySelectorAll("input");
+                inputs.forEach(input => {
+                    input.disabled = false;
+                });
+            }
+        });
     </script>
     
 

@@ -1,0 +1,42 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="evaluationTable mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <form method="get" action="/courses/<%= course._id %>">
+            <button class="btn btn-outline-dark">← Back to Course</button>
+        </form>
+        <h4 class="mb-0 text-center flex-grow-1">Evaluation Completion - <%= rubric.courseId.courseCode %> <%= rubric.courseId.description %></h4>
+        <div style="width: 150px;"></div> <!-- Spacer to balance the layout -->
+    </div>
+    <table id="allScores-table" class="mt-1 table align-middle table-bordered border-dark">
+        <thead class="align-middle">
+            <tr class="table-secondary">
+                <th scope="col">No</th>
+                <th scope="col">Student</th>
+                <th scope="col">Email</th>
+                <th scope="col">Completion</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% studentStatuses.forEach(student => { 
+                let colorClass = student.completed ? "table-success" : "table-warning";
+            %>
+                <tr class="<%= colorClass %>">
+                    <td><%= student.no %></td>
+                    <td><%= student.name %></td>
+                    <td><%= student.email %></td>
+                    <td style="font-style: italic; font-size: 12px;">
+                        <% if (student.completed) { %>
+                            ✅ &nbsp; Completed
+                        <% } else { %>
+                            ❌ &nbsp; Yet To Complete
+                        <% } %>
+                    </td>
+                </tr>
+            <% }); %>            
+        </tbody>
+    </table>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
